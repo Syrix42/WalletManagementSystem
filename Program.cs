@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -15,10 +15,10 @@ class MenuManager
     private SecurityServices _security;
     private UserDataAcess _userDataAccess;
 
-    public MenuManager()
+    public MenuManager(SecurityServices security, UserDataAcess User)
     {
-        _security = new SecurityServices();
-        _userDataAccess = new UserDataAcess();
+        _security = security;
+        _userDataAccess = User;
     }
 
     public void ShowMainMenu()
@@ -1101,6 +1101,82 @@ public class SecurityServices : ISecurityServices, IDisposable
             TextWriterTraceListener textListener = new TextWriterTraceListener("Traces.txt");
             Trace.Listeners.Add(textListener);
             Trace.AutoFlush = true;
+            UserDataAcess user = new UserDataAcess();
+            SecurityServices securty = new SecurityServices();
+            MenuManager menu = new MenuManager(securty , user);
+            menu.ShowMainMenu();
+        }
+    }
+
+
+
+
+
+    public class AppDbContext : DbContext
+    {
+        public DbSet<User> Users { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
+
+        public DbSet<Balance> Balance { get; set; }
+
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            string connectionString = "server=localhost;database=wallet_db;user=root;password=12345678;";
+            var serverVersion = new MySqlServerVersion(new Version(8, 0, 41));
+            optionsBuilder.UseMySql(connectionString, serverVersion);
+        }
+
+    }
+
+
+    public class User
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string PassHash { get; set; }
+        public string Salt { get; set; }
+        public string WalletId { get; set; }
+        public DateTime Date { get; set; }
+    }
+    public class Transaction
+    {
+        public int Id { get; set; }
+        public Guid TransactionId { get; set; }
+        public string SourceAccount { get; set; }
+        public string DestinationAccount { get; set; }
+        public decimal Amount { get; set; }
+        public TransactionStatus Status { get; set; }
+        public DateTime Timestamp { get; set; }
+    }
+
+    public class Balance
+    {
+        public int Id { get; set; }
+
+        public string WalletId { get; set; }
+
+        public decimal balance { get; set; }
+
+        public DateTime LastUpdated { get; set; }
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
+
+    }
+
+
+
+
+    class Program
+    {
+        public static object TraceLock = new object();
+        static void Main(string[] args)
+        {
+            TextWriterTraceListener textListener = new TextWriterTraceListener("Traces.txt");
+            Trace.Listeners.Add(textListener);
+            Trace.AutoFlush = true;
 
             MenuManager menu = new MenuManager();
             menu.ShowMainMenu();
@@ -1108,3 +1184,11 @@ public class SecurityServices : ISecurityServices, IDisposable
     }
 
 
+
+        Console.WriteLine("A database error occurred: " + ex.Message);
+        }
+        finally
+        {
+            Console.WriteLine("Returning to the Main Menu");
+        }
+    }
