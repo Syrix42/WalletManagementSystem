@@ -403,7 +403,7 @@ class MenuManager
 
 public class SecurityServices : ISecurityServices, IDisposable
 {
-    private AppDbContext _dbcontext;
+    
     private int _counter;
     private ConcurrentDictionary<string, StringBuilder> _twoFaCodes;
     private bool _disposed = false;
@@ -411,7 +411,7 @@ public class SecurityServices : ISecurityServices, IDisposable
 
     public SecurityServices()
     {
-        _dbcontext = new AppDbContext();
+        
         _twoFaCodes = new ConcurrentDictionary<string, StringBuilder>();
     }
 
@@ -531,7 +531,7 @@ public class SecurityServices : ISecurityServices, IDisposable
         {
 
         }
-        _dbcontext.Dispose();
+        
         _disposed = true;
 
 
@@ -1109,86 +1109,3 @@ public class SecurityServices : ISecurityServices, IDisposable
     }
 
 
-
-
-
-    public class AppDbContext : DbContext
-    {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Transaction> Transactions { get; set; }
-
-        public DbSet<Balance> Balance { get; set; }
-
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            string connectionString = "server=localhost;database=wallet_db;user=root;password=12345678;";
-            var serverVersion = new MySqlServerVersion(new Version(8, 0, 41));
-            optionsBuilder.UseMySql(connectionString, serverVersion);
-        }
-
-    }
-
-
-    public class User
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public string PassHash { get; set; }
-        public string Salt { get; set; }
-        public string WalletId { get; set; }
-        public DateTime Date { get; set; }
-    }
-    public class Transaction
-    {
-        public int Id { get; set; }
-        public Guid TransactionId { get; set; }
-        public string SourceAccount { get; set; }
-        public string DestinationAccount { get; set; }
-        public decimal Amount { get; set; }
-        public TransactionStatus Status { get; set; }
-        public DateTime Timestamp { get; set; }
-    }
-
-    public class Balance
-    {
-        public int Id { get; set; }
-
-        public string WalletId { get; set; }
-
-        public decimal balance { get; set; }
-
-        public DateTime LastUpdated { get; set; }
-
-        [Timestamp]
-        public byte[] RowVersion { get; set; }
-
-    }
-
-
-
-
-    class Program
-    {
-        public static object TraceLock = new object();
-        static void Main(string[] args)
-        {
-            TextWriterTraceListener textListener = new TextWriterTraceListener("Traces.txt");
-            Trace.Listeners.Add(textListener);
-            Trace.AutoFlush = true;
-
-            MenuManager menu = new MenuManager();
-            menu.ShowMainMenu();
-        }
-    }
-
-
-
-        Console.WriteLine("A database error occurred: " + ex.Message);
-        }
-        finally
-        {
-            Console.WriteLine("Returning to the Main Menu");
-        }
-    }
