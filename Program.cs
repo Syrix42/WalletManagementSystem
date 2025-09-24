@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 // ========================== MENU MANAGER ==========================
 class MenuManager
 {
-    private SecurityServices _security;
-    private UserDataAcess _userDataAccess;
+    private ISecurityServices _security;
+    private IUserDataAcess _userDataAccess;
 
-    public MenuManager(SecurityServices security, UserDataAcess User)
+    public MenuManager(ISecurityServices security, IUserDataAcess User)
     {
         _security = security;
         _userDataAccess = User;
@@ -1107,5 +1107,6 @@ public class SecurityServices : ISecurityServices, IDisposable
             menu.ShowMainMenu();
         }
     }
+
 
 
